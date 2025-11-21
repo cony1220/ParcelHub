@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
-import { requireAuth, requireGuest, redirectByRole } from "./guards";
+import { requireAuth, requireGuest } from "./guards";
 
 declare module "vue-router" {
   interface RouteMeta {
@@ -8,12 +8,17 @@ declare module "vue-router" {
 }
 
 const routes: RouteRecordRaw[] = [
-  { path: "/", name: "Root", beforeEnter: redirectByRole, component: { render: () => null } },
+  {
+    path: "/",
+    name: "Home",
+    component: () => import("@/pages/public/HomePage.vue"),
+    meta: { layout: "default" },
+  },
   // 登入
   {
     path: "/login",
     name: "Login",
-    component: () => import("@/pages/Login.vue"),
+    component: () => import("@/pages/public/Login.vue"),
     beforeEnter: requireGuest(),
     meta: { layout: "default" },
   },
