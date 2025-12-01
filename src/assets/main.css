@@ -1,36 +1,16 @@
 @import "./base.css";
 @import "tailwindcss";
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-}
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/* Tailwind v4: 宣告自訂色（olive） */
+@theme {
+  --color-olive-50: #f2f5ec;
+  --color-olive-100: #e1e6d7;
+  --color-olive-200: #cbd3bf;
+  --color-olive-300: #b6c1a6;
+  --color-olive-400: #a2ae8f;
+  --color-olive-500: #8e9c78; /* 基準 */
+  --color-olive-600: #708356;
+  --color-olive-700: #485c11; /* 主按鈕色 */
+  --color-olive-800: #37460c;
+  --color-olive-900: #2a3308;
 }
