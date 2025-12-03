@@ -1,4 +1,5 @@
 // 集中假資料 + 假 fetch
+import type { Parcel } from "@/types/parcel";
 export type Role = "resident" | "guard" | "admin";
 
 export interface User {
@@ -10,20 +11,6 @@ export interface User {
   unit?: string;
   isDisabled?: boolean;
   createdAt: string;
-}
-
-export interface Parcel {
-  id: string;
-  trackingNo: string;
-  carrier?: string;
-  building?: string;
-  unit?: string;
-  recipientName?: string;
-  note?: string;
-  status: "pending" | "picked";
-  createdAt: string;
-  pickedAt?: string;
-  pickupBy?: string;
 }
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -55,37 +42,41 @@ function seed() {
     {
       id: uid(),
       trackingNo: "TAO-0012345",
-      carrier: "黑貓",
+      courier: "黑貓",
+      sender: null, // 需要時再填
       building: "A",
       unit: "10F-3",
-      recipientName: "amy",
-      note: "",
-      status: "pending",
-      createdAt: nowISO(),
+      receivedAt: nowISO(),
+      pickedAt: null, // 沒取件= null
+      pickupBy: null,
+      pickupCode: null,
+      notes: "",
     },
     {
       id: uid(),
       trackingNo: "HCT-778899",
-      carrier: "新竹",
+      courier: "新竹",
+      sender: null,
       building: "B",
       unit: "5F-1",
-      recipientName: "bob",
-      note: "冷藏",
-      status: "pending",
-      createdAt: nowISO(),
+      receivedAt: nowISO(),
+      pickedAt: null,
+      pickupBy: null,
+      pickupCode: null,
+      notes: "冷藏",
     },
     {
       id: uid(),
       trackingNo: "POST-556677",
-      carrier: "郵局",
+      courier: "郵局",
+      sender: null,
       building: "A",
       unit: "12F-2",
-      recipientName: "amy",
-      note: "",
-      status: "picked",
-      createdAt: nowISO(),
-      pickedAt: nowISO(),
+      receivedAt: nowISO(),
+      pickedAt: nowISO(), // ← 有值代表已取件
       pickupBy: "g-alan",
+      pickupCode: null,
+      notes: "",
     },
   );
 }
@@ -139,47 +130,77 @@ export const mockUsersAPI = {
 };
 
 export const mockParcelsAPI = {
+  /** 只列出「我的」包裹 + 關鍵字搜尋（trackingNo/courier/notes），並以到件時間新→舊排序 */
   async listMine(q?: string, me?: string) {
     let items = [...db.parcels];
-    if (me)
-      items = items.filter((p) => (p.recipientName || "").toLowerCase().includes(me.toLowerCase()));
+
+    // 「我的包裹」過濾（向下相容：如果資料裡仍有 recipientName 才使用）
+    if (me) {
+      const m = me.toLowerCase();
+      items = items.filter((p: Parcel) =>
+        typeof p.recipientName === "string" ? p.recipientName.toLowerCase().includes(m) : true,
+      );
+    }
+
+    // 搜尋：trackingNo / courier / notes
     if (q) {
       const s = q.toLowerCase();
       items = items.filter(
         (p) =>
           p.trackingNo.toLowerCase().includes(s) ||
-          (p.carrier || "").toLowerCase().includes(s) ||
-          (p.note || "").toLowerCase().includes(s),
+          (p.courier ?? "").toLowerCase().includes(s) ||
+          (p.notes ?? "").toLowerCase().includes(s),
       );
     }
-    items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    // 以到件時間（receivedAt）新→舊排序
+    items.sort((a, b) => +new Date(b.receivedAt) - +new Date(a.receivedAt));
+
     return delay({ items });
   },
+
   async getById(id: string) {
     const item = db.parcels.find((p) => p.id === id);
     if (!item) throw new Error("Not Found");
     return delay({ item });
   },
+
+  /** 建立包裹（待取件） */
   async create(payload: Partial<Parcel>) {
     if (!payload.trackingNo) throw new Error("請輸入託運單號");
+
     const item: Parcel = {
       id: uid(),
-      trackingNo: payload.trackingNo,
-      carrier: payload.carrier,
-      building: payload.building,
-      unit: payload.unit,
-      recipientName: payload.recipientName,
-      note: payload.note,
-      status: "pending",
-      createdAt: nowISO(),
+      trackingNo: payload.trackingNo!,
+      courier: payload.courier ?? null,
+      sender: payload.sender ?? null,
+      building: payload.building ?? null,
+      unit: payload.unit ?? null,
+
+      receivedAt: nowISO(), // ← 新欄位
+      pickedAt: null, // 待取件
+      pickupBy: null,
+      pickupCode: payload.pickupCode ?? null,
+
+      notes: payload.notes ?? null,
     };
+
     db.parcels.push(item);
     return delay({ item });
   },
+
+  /** 取件（把 pickedAt 設定時間即可；不再用 status） */
   async pickup(trackingNo: string, by: string) {
-    const i = db.parcels.findIndex((p) => p.trackingNo === trackingNo && p.status === "pending");
+    const i = db.parcels.findIndex(
+      (p) => p.trackingNo === trackingNo && !p.pickedAt, // 待取件條件
+    );
     if (i < 0) throw new Error("找不到待領件或已領取");
-    db.parcels[i] = { ...db.parcels[i], status: "picked", pickedAt: nowISO(), pickupBy: by };
+
+    db.parcels[i] = {
+      ...db.parcels[i],
+      pickedAt: nowISO(),
+      pickupBy: by,
+    };
     return delay({ item: db.parcels[i] });
   },
 };
