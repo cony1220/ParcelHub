@@ -1,17 +1,5 @@
 // 集中假資料 + 假 fetch
-import type { Parcel } from "@/types/parcel";
-export type Role = "resident" | "guard" | "admin";
-
-export interface User {
-  id: string;
-  username: string;
-  password: string;
-  role: Role;
-  building?: string;
-  unit?: string;
-  isDisabled?: boolean;
-  createdAt: string;
-}
+import type { Parcel, CreateParcelInput, User } from "@/types";
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 const nowISO = () => new Date().toISOString();
@@ -130,17 +118,9 @@ export const mockUsersAPI = {
 };
 
 export const mockParcelsAPI = {
-  /** 只列出「我的」包裹 + 關鍵字搜尋（trackingNo/courier/notes），並以到件時間新→舊排序 */
-  async listMine(q?: string, me?: string) {
-    let items = [...db.parcels];
-
-    // 「我的包裹」過濾（向下相容：如果資料裡仍有 recipientName 才使用）
-    if (me) {
-      const m = me.toLowerCase();
-      items = items.filter((p: Parcel) =>
-        typeof p.recipientName === "string" ? p.recipientName.toLowerCase().includes(m) : true,
-      );
-    }
+  /** 關鍵字搜尋（trackingNo/courier/notes），並以到件時間新→舊排序 */
+  async listMine(q?: string) {
+    let items: Parcel[] = [...db.parcels];
 
     // 搜尋：trackingNo / courier / notes
     if (q) {
@@ -166,7 +146,7 @@ export const mockParcelsAPI = {
   },
 
   /** 建立包裹（待取件） */
-  async create(payload: Partial<Parcel>) {
+  async create(payload: CreateParcelInput) {
     if (!payload.trackingNo) throw new Error("請輸入託運單號");
 
     const item: Parcel = {

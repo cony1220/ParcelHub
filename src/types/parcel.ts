@@ -1,4 +1,3 @@
-// src/types/parcel.ts
 export interface Parcel {
   id: string;
   /** 托運單號 (例: HCT-778899) */
@@ -21,3 +20,8 @@ export interface Parcel {
   /** 備註 */
   notes?: string | null;
 }
+
+export type CreateParcelInput = Pick<
+  Parcel,
+  "trackingNo" | "courier" | "sender" | "building" | "unit" | "notes" | "pickupCode"
+>;
