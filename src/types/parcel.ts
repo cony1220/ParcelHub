@@ -12,7 +12,7 @@ export interface Parcel {
   /** 到櫃台(登記)時間；建議用 ISO 字串 */
   receivedAt: string;
   /** 取件時間；有值表示已取件 */
-  pickedAt?: string | null;
+  pickedUpAt?: string | null;
   /** 經手/取件者（員工或住戶帳號/名稱） */
   pickupBy?: string | null;
   /** 住戶用的取件碼（可選） */

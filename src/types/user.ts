@@ -9,3 +9,7 @@ export interface User {
   isDisabled?: boolean;
   createdAt: string;
 }
+
+export type CreateUserInput = Omit<User, "id" | "createdAt">;
+
+export type UserUpdatable = Partial<Omit<User, "id">>;

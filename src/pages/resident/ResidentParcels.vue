@@ -165,19 +165,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { ParcelsAPI } from "@/api/parcels";
-
-type Parcel = {
-  id: string;
-  trackingNo: string;
-  courier?: string | null;
-  sender?: string | null;
-  building?: string | null;
-  unit?: string | null;
-  receivedAt: string | number | Date;
-  pickedUpAt?: string | number | Date | null;
-  pickupCode?: string | null;
-  notes?: string | null;
-};
+import type { Parcel } from "@/types";
 
 const loading = ref(true);
 const items = ref<Parcel[]>([]);

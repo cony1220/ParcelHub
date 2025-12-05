@@ -1,5 +1,5 @@
 // 集中假資料 + 假 fetch
-import type { Parcel, CreateParcelInput, User } from "@/types";
+import type { Parcel, CreateParcelInput, User, CreateUserInput, UserUpdatable } from "@/types";
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 const nowISO = () => new Date().toISOString();
@@ -35,7 +35,7 @@ function seed() {
       building: "A",
       unit: "10F-3",
       receivedAt: nowISO(),
-      pickedAt: null, // 沒取件= null
+      pickedUpAt: null, // 沒取件= null
       pickupBy: null,
       pickupCode: null,
       notes: "",
@@ -48,7 +48,7 @@ function seed() {
       building: "B",
       unit: "5F-1",
       receivedAt: nowISO(),
-      pickedAt: null,
+      pickedUpAt: null,
       pickupBy: null,
       pickupCode: null,
       notes: "冷藏",
@@ -61,9 +61,9 @@ function seed() {
       building: "A",
       unit: "12F-2",
       receivedAt: nowISO(),
-      pickedAt: nowISO(), // ← 有值代表已取件
+      pickedUpAt: nowISO(), // ← 有值代表已取件
       pickupBy: "g-alan",
-      pickupCode: null,
+      pickupCode: "SFAf465465",
       notes: "",
     },
   );
@@ -98,16 +98,18 @@ export const mockUsersAPI = {
   async list() {
     return delay({ items: [...db.users].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) });
   },
-  async create(payload: Omit<User, "id" | "createdAt">) {
+  async create(payload: CreateUserInput) {
     if (db.users.some((x) => x.username === payload.username)) throw new Error("使用者已存在");
     const item: User = { ...payload, id: uid(), createdAt: nowISO() };
     db.users.push(item);
     return delay({ item });
   },
-  async update(id: string, patch: Partial<Omit<User, "id">>) {
+  async update(id: string, patch: UserUpdatable) {
     const i = db.users.findIndex((x) => x.id === id);
     if (i < 0) throw new Error("找不到使用者");
-    db.users[i] = { ...db.users[i], ...patch };
+
+    const current = db.users[i]!;
+    db.users[i] = { ...current, ...patch };
     return delay({ item: db.users[i] });
   },
   async remove(id: string) {
@@ -158,7 +160,7 @@ export const mockParcelsAPI = {
       unit: payload.unit ?? null,
 
       receivedAt: nowISO(), // ← 新欄位
-      pickedAt: null, // 待取件
+      pickedUpAt: null, // 待取件
       pickupBy: null,
       pickupCode: payload.pickupCode ?? null,
 
@@ -169,16 +171,17 @@ export const mockParcelsAPI = {
     return delay({ item });
   },
 
-  /** 取件（把 pickedAt 設定時間即可；不再用 status） */
+  /** 取件 */
   async pickup(trackingNo: string, by: string) {
     const i = db.parcels.findIndex(
-      (p) => p.trackingNo === trackingNo && !p.pickedAt, // 待取件條件
+      (p) => p.trackingNo === trackingNo && !p.pickedUpAt, // 待取件條件
     );
     if (i < 0) throw new Error("找不到待領件或已領取");
 
+    const current = db.parcels[i]!;
     db.parcels[i] = {
-      ...db.parcels[i],
-      pickedAt: nowISO(),
+      ...current,
+      pickedUpAt: nowISO(),
       pickupBy: by,
     };
     return delay({ item: db.parcels[i] });
