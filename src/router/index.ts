@@ -35,20 +35,30 @@ const routes: RouteRecordRaw[] = [
   },
 
   // Guard：登記 / 取件（admin 也可進）
-  // {
-  //   path: "/guard/parcels/new",
-  //   name: "GuardParcelNew",
-  //   component: () => import("@/pages/guard/ParcelNew.vue"),
-  //   beforeEnter: requireAuth(["guard", "admin"]),
-  //   meta: { layout: "guard" },
-  // },
-  // {
-  //   path: "/guard/parcels/pickup",
-  //   name: "GuardParcelPickup",
-  //   component: () => import("@/pages/guard/ParcelPickup.vue"),
-  //   beforeEnter: requireAuth(["guard", "admin"]),
-  //   meta: { layout: "guard" },
-  // },
+  {
+    path: "/guard",
+    meta: { layout: "guard" },
+    beforeEnter: requireAuth(["guard", "admin"]),
+    children: [
+      {
+        path: "parcels",
+        component: () => import("@/pages/guard/GuardDeskLayout.vue"), // 父層：放「分頁」與 <RouterView />
+        children: [
+          { path: "", redirect: { name: "GuardParcelNew" } }, // 進 /guard/parcels 預設導向「登記」
+          {
+            path: "new",
+            name: "GuardParcelNew",
+            component: () => import("@/pages/guard/ParcelNew.vue"),
+          },
+          {
+            path: "pickup",
+            name: "GuardParcelPickup",
+            component: () => import("@/pages/guard/ParcelPickup.vue"),
+          },
+        ],
+      },
+    ],
+  },
 
   // Admin：使用者管理
   // {

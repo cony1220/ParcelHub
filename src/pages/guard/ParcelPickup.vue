@@ -1,37 +1,78 @@
 <template>
-  <section class="p-4">
-    <h2>取件作業</h2>
-    <p>輸入託運單號進行領取。</p>
-    <form @submit.prevent="pickup" class="space-y-2">
-      <input v-model="trackingNo" placeholder="例如 TAO-0012345" required />
-      <button :disabled="loading">{{ loading ? "處理中…" : "確認領取" }}</button>
+  <section class="mx-auto max-w-3xl">
+    <header class="mb-6">
+      <h1 class="font-serif text-2xl font-extrabold sm:text-3xl">包裹取件</h1>
+      <p class="mt-1 text-black/60">輸入托運單號，立即完成取件登記。</p>
+    </header>
+
+    <form @submit.prevent="onPickup" class="space-y-4 rounded-xl border bg-white p-5 shadow-sm">
+      <div>
+        <label class="mb-1 block text-sm text-black/60">托運單號 *</label>
+        <input
+          v-model.trim="trackingNo"
+          class="focus-visible:ring-olive-700 w-full rounded-md border px-3 py-2 outline-none focus-visible:ring-2"
+          placeholder="例：HCT-778899"
+        />
+      </div>
+
+      <div class="text-sm text-black/60">
+        經手人：<span class="font-medium text-black">{{ handlerLabel }}</span>
+      </div>
+
+      <div class="flex items-center gap-3 pt-1">
+        <button
+          type="submit"
+          :disabled="submitting || !trackingNo"
+          class="bg-olive-700 hover:bg-olive-800 inline-flex items-center rounded-md px-4 py-2 text-white disabled:opacity-50"
+        >
+          {{ submitting ? "處理中…" : "確認取件" }}
+        </button>
+        <button
+          type="button"
+          class="text-sm text-black/60 hover:underline"
+          @click="trackingNo = ''"
+        >
+          清空
+        </button>
+      </div>
+
+      <p v-if="msg" class="text-emerald-700">{{ msg }}</p>
+      <p v-if="err" class="text-red-600">{{ err }}</p>
     </form>
-    <p v-if="msg" :style="{ marginTop: '8px', color: ok ? 'green' : 'crimson' }">{{ msg }}</p>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { ParcelsAPI } from "@/api/parcels";
 import { useAuthStore } from "@/stores/auth";
+
+defineOptions({ name: "GuardParcelPickup" });
+
 const auth = useAuthStore();
 const trackingNo = ref("");
-const loading = ref(false);
+const submitting = ref(false);
 const msg = ref("");
-const ok = ref(false);
-async function pickup() {
-  loading.value = true;
+const err = ref("");
+
+const handlerLabel = computed(() =>
+  auth?.username ? `${auth.username} (${auth.role})` : (auth?.role ?? "guard"),
+);
+
+async function onPickup() {
   msg.value = "";
-  ok.value = false;
+  err.value = "";
+  if (!trackingNo.value) return;
+
+  submitting.value = true;
   try {
-    await ParcelsAPI.pickup(trackingNo.value.trim(), auth.userName || "guard");
-    ok.value = true;
-    msg.value = "領取完成";
+    await ParcelsAPI.pickup(trackingNo.value, auth?.username || auth?.role || "guard");
+    msg.value = "已完成取件";
     trackingNo.value = "";
   } catch (e: any) {
-    msg.value = e?.message || "領取失敗";
+    err.value = e?.message ?? "取件失敗";
   } finally {
-    loading.value = false;
+    submitting.value = false;
   }
 }
 </script>

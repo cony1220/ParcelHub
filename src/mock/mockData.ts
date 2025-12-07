@@ -15,7 +15,7 @@ function seed() {
   if (db.users.length) return;
   db.users.push(
     { id: uid(), username: "admin", password: "pass", role: "admin", createdAt: nowISO() },
-    { id: uid(), username: "g-alan", password: "pass", role: "guard", createdAt: nowISO() },
+    { id: uid(), username: "guard", password: "pass", role: "guard", createdAt: nowISO() },
     {
       id: uid(),
       username: "amy",

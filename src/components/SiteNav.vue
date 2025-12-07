@@ -1,7 +1,7 @@
 <template>
   <header class="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
     <div class="relative flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
-      <RouterLink to="/" class="font-bold">ParcelHub</RouterLink>
+      <RouterLink to="/" class="text-xl font-bold">ParcelHub</RouterLink>
 
       <template v-if="!hideNavActions">
         <!-- 桌面選單（用 MainMenu，一行搞定） -->

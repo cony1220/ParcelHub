@@ -9,8 +9,8 @@ export type NewParcel = {
 };
 
 export const ParcelsAPI = {
-  listMine(q?: string, me?: string) {
-    return mockParcelsAPI.listMine(q, me);
+  listMine(q?: string) {
+    return mockParcelsAPI.listMine(q);
   },
   getById(id: string) {
     return mockParcelsAPI.getById(id);
