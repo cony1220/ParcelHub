@@ -7,8 +7,10 @@ export interface Parcel {
   /** 寄件人（可不填） */
   sender?: string | null;
   /** 棟別與房號（住戶定位） */
-  building?: string | null;
-  unit?: string | null;
+  building: string | null;
+  unit: string | null;
+  recipientUserId?: string | null;
+  recipientName?: string | null;
   /** 到櫃台(登記)時間；建議用 ISO 字串 */
   receivedAt: string;
   /** 取件時間；有值表示已取件 */
@@ -23,5 +25,13 @@ export interface Parcel {
 
 export type CreateParcelInput = Pick<
   Parcel,
-  "trackingNo" | "courier" | "sender" | "building" | "unit" | "notes" | "pickupCode"
+  | "trackingNo"
+  | "courier"
+  | "sender"
+  | "building"
+  | "unit"
+  | "recipientUserId"
+  | "recipientName"
+  | "pickupCode"
+  | "notes"
 >;

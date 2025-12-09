@@ -1,7 +1,7 @@
 <template>
   <section class="mx-auto max-w-3xl">
     <header class="mb-6">
-      <h1 class="font-serif text-2xl font-extrabold sm:text-3xl">包裹取件</h1>
+      <h1 class="font-serif text-xl font-extrabold">包裹取件</h1>
       <p class="mt-1 text-black/60">輸入托運單號，立即完成取件登記。</p>
     </header>
 

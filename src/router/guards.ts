@@ -1,6 +1,7 @@
 import type { NavigationGuard } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-type Role = "resident" | "guard" | "admin";
+import type { Role } from "@/types";
+
 export const defaultRouteName = (role: Role | null) =>
   role === "admin" ? "AdminUsers" : role === "guard" ? "GuardParcelNew" : "ResidentParcels";
 

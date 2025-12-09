@@ -1,4 +1,6 @@
 import { mockParcelsAPI } from "@/mock/mockData";
+import type { CreateParcelInput } from "@/types";
+
 export type NewParcel = {
   trackingNo: string;
   carrier?: string;
@@ -15,7 +17,7 @@ export const ParcelsAPI = {
   getById(id: string) {
     return mockParcelsAPI.getById(id);
   },
-  create(data: NewParcel) {
+  create(data: CreateParcelInput) {
     return mockParcelsAPI.create(data);
   },
   pickup(trackingNo: string, by: string) {

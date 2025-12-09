@@ -68,8 +68,8 @@ import { useAuthStore } from "@/stores/auth";
 import MainMenu, { type Link as LinkType } from "@/components/MainMenu.vue";
 import AuthButton from "@/components/AuthButton.vue";
 import menuIcon from "@/assets/icons/menu.png";
+import type { Role } from "@/types";
 
-type Role = "resident" | "guard" | "admin";
 type Link = LinkType & { roles: readonly Role[] };
 
 const LINKS: ReadonlyArray<Link> = [

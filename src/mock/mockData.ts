@@ -66,6 +66,21 @@ function seed() {
       pickupCode: "SFAf465465",
       notes: "",
     },
+    {
+      id: uid(),
+      trackingNo: "TAO-0012345",
+      courier: "黑貓",
+      sender: null,
+      building: "A",
+      unit: "10F-3",
+      recipientUserId: db.users.find((u) => u.username === "amy")?.id ?? null,
+      recipientName: "Amy",
+      receivedAt: nowISO(),
+      pickedUpAt: null,
+      pickupBy: null,
+      pickupCode: null,
+      notes: "",
+    },
   );
 }
 seed();
@@ -95,8 +110,14 @@ export const mockAuthAPI = {
 };
 
 export const mockUsersAPI = {
-  async list() {
-    return delay({ items: [...db.users].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) });
+  // async list() {
+  //   return delay({ items: [...db.users].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) });
+  // },
+  async list(filter?: { building?: string; unit?: string }) {
+    let items = [...db.users];
+    if (filter?.building) items = items.filter((u) => u.building === filter.building);
+    if (filter?.unit) items = items.filter((u) => u.unit === filter.unit);
+    return delay({ items });
   },
   async create(payload: CreateUserInput) {
     if (db.users.some((x) => x.username === payload.username)) throw new Error("使用者已存在");
@@ -158,6 +179,9 @@ export const mockParcelsAPI = {
       sender: payload.sender ?? null,
       building: payload.building ?? null,
       unit: payload.unit ?? null,
+
+      recipientUserId: payload.recipientUserId ?? null,
+      recipientName: payload.recipientName ?? null,
 
       receivedAt: nowISO(), // ← 新欄位
       pickedUpAt: null, // 待取件

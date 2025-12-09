@@ -1,5 +1,5 @@
 import { mockAuthAPI } from "@/mock/mockData";
-export type Role = "resident" | "guard" | "admin";
+import type { Role } from "@/types";
 export type Me = { id: string; username: string; role: Role; building?: string; unit?: string };
 
 export const AuthAPI = {

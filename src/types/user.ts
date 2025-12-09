@@ -4,8 +4,8 @@ export interface User {
   username: string;
   password: string;
   role: Role;
-  building?: string | null;
-  unit?: string | null;
+  building: string | null;
+  unit: string | null;
   isDisabled?: boolean;
   createdAt: string;
 }
