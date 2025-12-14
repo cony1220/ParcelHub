@@ -142,8 +142,12 @@ export const mockUsersAPI = {
 
 export const mockParcelsAPI = {
   /** 關鍵字搜尋（trackingNo/courier/notes），並以到件時間新→舊排序 */
-  async listMine(q?: string) {
-    let items: Parcel[] = [...db.parcels];
+  async listMine(currentUser: User, q?: string) {
+    let items: Parcel[] = db.parcels.filter(
+      (p) =>
+        (p.building === currentUser.building && p.unit === currentUser.unit) ||
+        p.recipientUserId === currentUser.id,
+    );
 
     // 搜尋：trackingNo / courier / notes
     if (q) {
